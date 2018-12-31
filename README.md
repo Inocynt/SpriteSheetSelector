@@ -7,6 +7,9 @@ Finally I decided to spent an hour and write it from scratch.
 
 ### Usage
 What you need is just a modern (CSS3 support) web browser.
+
 Provide URL to sprite sheet.
+
 Click: save ASCII char.
+
 Double click: generate CSS code
