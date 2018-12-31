@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Sprite Selector</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+	<!-- Internet Explorer HTML5 enabling script: -->
+	<!--[if IE]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<style type="text/css">
+			.clear {
+				zoom: 1;
+				display: block;
+			}
+		</style>
+	<![endif]-->
+</head>
+<body>
+	<label for="url">URL:</label>
+	<input id="url" type="text" />
+	<button id="button">Load</button>
+	<br />
+	
+	<label for="width">Width x Heigth:</label>
+	<input id="width" type="text" value="32">px&nbsp;&nbsp;
+	<input id="height" type="text" value="32" />px
+	<br /><br />
+	<div id="panel">
+		<div id="displayPos"></div>
+		<div id="displayRowCol"></div>
+		<div id="displayAscii"></div>
+
+		<br />
+		<div>ASCII: <input id="textAscii" type="text" /></div>
+		<textarea id="textarea"></textarea>
+	</div>
+	<div id="container">
+		<img id="image" />
+		<div id="background"><div id="selector"></div></div>
+	</div>
+	
+	<!-- JavaScript Includes -->
+	<script
+		src="https://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous">
+	</script>
+
+  <script>
+		$(function() {
+			var width, height, columns;
+			var relativeOffset = $("#container").offset();
+			var currentX, currentY, row, col, code;
+			
+			var resetSelectorSize = function() {
+				width = $("#width").val();
+				height = $("#height").val();
+				columns = Math.floor($("#image").width() / width);
+				$("#selector").width(width).height(height);
+			};
+			
+			var select = function(x, y) {
+				currentX = x;
+				currentY = y;
+				$("#selector").css({left: x, top: y});
+				$("#displayPos").html("X: " + x + "px; Y: " + y + "px");
+				
+				row = y / height;
+				col = x / width;
+				$("#displayRowCol").html("Row: " + (row) + "; Col: " + (col));
+
+				code = (columns * row) + col;
+				$("#displayAscii").html("ASCII code: " + code);
+			};
+			
+			var load = function() {
+				var value = $("#url").val();
+				$("#image").attr('src', value);
+			}
+			
+			$("#url").on('change', load);
+			$("#button").on('click', load);
+			
+			$("#image").on('load', function(event) {
+				$("#background").css({
+					width: $(this).width(),
+					height: $(this).height()
+				});
+				resetSelectorSize();
+			});
+			
+			$("#container").mousemove(function(event) {
+				var x = event.pageX - relativeOffset.left;
+				var y = event.pageY - relativeOffset.top;
+				var normX = Math.floor(x / width) * width;
+				var normY = Math.floor(y / height) * height;
+				select(normX, normY);
+			}).click(function(event) {
+				$("#textAscii").val($("#textAscii").val() + String.fromCharCode(code));
+			}).dblclick(function(event) {
+				var className = prompt("Enter CSS class name");
+				var css = "." + className + " {\n";
+				css += "\tbackground-position: -" + currentX + "px -" + currentY + "px;\n"
+				css += "}\n";
+				$("#textarea").val($("#textarea").val() + css + "\n");
+			}).hover(function() {
+				$("#background").css("background-color", "gray");
+			}, function() {
+				$("#background").css("background-color", "white");
+			});
+			
+			$("#width").on('change', resetSelectorSize);
+			$("#height").on('change', resetSelectorSize);
+			resetSelectorSize();
+		});
+	</script>
+</body>
+
+</html>
